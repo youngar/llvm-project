@@ -52,14 +52,14 @@ MlirDiagnostic mlirDiagnosticGetNote(MlirDiagnostic diagnostic, intptr_t pos) {
   return wrap(*std::next(unwrap(diagnostic).getNotes().begin(), pos));
 }
 
-MlirDiagnosticHandlerID
-mlirContextAttachDiagnosticHandler(MlirContext context,
-                                   MlirDiagnosticHandler handler) {
-  assert(handler && "unexpected null diagnostic handler");
+MlirDiagnosticHandlerID mlirContextAttachDiagnosticHandler(
+    MlirContext context, MlirDiagnosticHandler handler, void *userData,
+    void (*deleteUserData)(void *)) {
+  std::shared_ptr<void> sharedUserData(userData, deleteUserData);
   DiagnosticEngine::HandlerID id =
       unwrap(context)->getDiagEngine().registerHandler(
-          [handler](Diagnostic &diagnostic) {
-            return unwrap(handler(wrap(diagnostic)));
+          [handler, sharedUserData](Diagnostic &diagnostic) {
+            return unwrap(handler(wrap(diagnostic), sharedUserData.get()));
           });
   return static_cast<MlirDiagnosticHandlerID>(id);
 }

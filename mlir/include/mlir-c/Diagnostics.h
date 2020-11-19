@@ -45,7 +45,8 @@ typedef uint64_t MlirDiagnosticHandlerID;
  * diagnostic completely, it is expected to return success. Otherwise, it is
  * expected to return failure to indicate that other handlers should attempt to
  * process the diagnostic. */
-typedef MlirLogicalResult (*MlirDiagnosticHandler)(MlirDiagnostic);
+typedef MlirLogicalResult (*MlirDiagnosticHandler)(MlirDiagnostic,
+                                                   void *userData);
 
 /** Prints a diagnostic using the provided callback. */
 void mlirDiagnosticPrint(MlirDiagnostic diagnostic, MlirStringCallback callback,
@@ -67,9 +68,9 @@ MlirDiagnostic mlirDiagnosticGetNote(MlirDiagnostic diagnostic, intptr_t pos);
 /** Attaches the diagnostic handler to the context. Handlers are invoked in the
  * reverse order of attachment until one of them processes the diagnostic
  * completely. Returns an identifier that can be used to detach the handler. */
-MlirDiagnosticHandlerID
-mlirContextAttachDiagnosticHandler(MlirContext context,
-                                   MlirDiagnosticHandler handler);
+MlirDiagnosticHandlerID mlirContextAttachDiagnosticHandler(
+    MlirContext context, MlirDiagnosticHandler handler, void *userData,
+    void (*deleteUserData)(void *));
 
 /** Detaches an attached diagnostic handler from the context given its
  * identifier. */
