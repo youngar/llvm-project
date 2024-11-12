@@ -670,12 +670,7 @@ public:
 
   /// Returns the regions held by this operation.
   MutableArrayRef<Region> getRegions() {
-    // Check the count first, as computing the trailing objects can be slow.
-    if (numRegions == 0)
-      return MutableArrayRef<Region>();
-
-    auto *regions = getTrailingObjects<Region>();
-    return {regions, numRegions};
+    return {getTrailingObjects<Region>(), numRegions};
   }
 
   /// Returns the region held by this operation at position 'index'.
